@@ -1,0 +1,29 @@
+Station number: 11
+Pi model: Raspberry Pi 5
+Boot-drive label: bootfs
+Names: Julien Belanger, Adam Hamade
+- Rung 1: [Julien]
+- Rung 2: [Julien]
+- Rung 3: [Adam]
+- Rung 4: [Adam]
+========================================
+EXIT TICKET ANSWERS
+========================================
+
+1. Input capability & architecture roles:
+The ESP32 (and Arduino UNO R4) has analog-to-digital converters (ADCs) to read continuous analog voltages, whereas the Raspberry Pi only has digital GPIO pins. Because of this, the microcontroller acts as the edge/sensor node (handling real-time analog sensing and PWM hardware control), while the Raspberry Pi acts as the gateway/server (running heavier Python logic, hosting the MQTT broker, logging data, and connecting to the network).
+
+2. 12-bit ADC step size on 3.3 V:
+A 12-bit ADC divides the reference voltage into 2^12 = 4096 discrete levels (0 to 4095):
+Step size = V_ref / 2^12 = 3.3 V / 4096 = 0.0008057 V (or ~0.81 mV)
+
+3. Voltage divider movement when a cloud passes:
+When a cloud passes, ambient light decreases, causing the photoresistor's (LDR's) resistance to increase. In a standard voltage divider where the LDR is on the top leg (connected to 3.3 V) and a fixed resistor is on the bottom leg (connected to GND), a larger top resistance drops more voltage across the LDR, causing the voltage at GPIO34 to move down (decrease). (Note: If the LDR is wired on the bottom leg to GND, the voltage moves up).
+
+4. Why pwm.duty_u16(adc.read_u16()) needs no scaling:
+Both adc.read_u16() and pwm.duty_u16() are standardized in MicroPython to operate on the exact same unsigned 16-bit integer scale (0 to 65535), regardless of the underlying hardware resolution (e.g., 12-bit ADC vs. 10-bit or 16-bit PWM timer).
+
+5. Open loop vs. closed loop:
+- Open loop: The controller sets an actuator output based solely on a predetermined rule or input without measuring whether the desired physical outcome was actually achieved.
+- Closed loop: The controller continuously measures the actual system output via a sensor, compares it to a target setpoint, and adjusts the actuator to minimize the error.
+- A2 requirement: Assignment 2 requires a closed-loop system (using PID control to maintain a target light setpoint despite external disturbances).
